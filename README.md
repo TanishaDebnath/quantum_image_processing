@@ -1,6 +1,4 @@
 
-
-```markdown
 # ⚛️ EBA-HQR: Entropy-Based Adaptive Hybrid Quantum Representation
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
@@ -111,7 +109,3 @@ The decision function  determines the encoding strategy:
 ---
 
 
-
-```
-
-```
