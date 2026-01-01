@@ -22,18 +22,14 @@ st.title("⚛️ Entropy-Based Adaptive Hybrid Quantum Representation (EBA-HQR)"
 # --- 2. SECURE CONNECTION ---
 with st.sidebar:
     st.header("⚙️ Settings")
-    
-    # LOAD KEY FROM SECRETS
     if "QISKIT_TOKEN" in st.secrets:
         api_token = st.secrets["QISKIT_TOKEN"]
         st.success("✅ Secure Key Found.")
     else:
         api_token = st.text_input("Enter Token (Local Mode):", type="password")
 
-    # Backend Selection
     mode = st.radio("Backend:", ["💻 Local Simulator", "☁️ IBM Real Hardware"])
     use_cloud = True if "Real" in mode else False
-    
     threshold = st.slider("Entropy Threshold", 0.1, 1.0, 0.6)
 
 # --- 3. DATA LOADING ---
@@ -96,6 +92,7 @@ with col2:
     st.pyplot(fig)
 
 st.divider()
+
 if st.button("RUN EXPERIMENT"):
     if use_cloud:
         if not api_token:
@@ -103,34 +100,38 @@ if st.button("RUN EXPERIMENT"):
             st.stop()
         
         try:
-            # === UPDATED CHANNEL NAME HERE ===
-            service = QiskitRuntimeService(channel="ibm_quantum", token=api_token)
+            # === ROBUST CONNECTION LOGIC ===
+            # 1. Try the standard channel
+            try:
+                service = QiskitRuntimeService(channel="ibm_quantum", token=api_token)
+            except Exception:
+                # 2. If that fails, force the platform channel (This is what worked for you!)
+                service = QiskitRuntimeService(channel="ibm_quantum_platform", token=api_token)
             
             backend = service.least_busy(operational=True, simulator=False)
             st.write(f"🌍 Connected to IBM Quantum: **{backend.name}**")
             
-            with st.spinner("Running on Quantum Hardware..."):
+            # === EXECUTION LOGIC (Runs for both channels) ===
+            with st.spinner("Submitting to Quantum Queue (Real Hardware)..."):
                 qc = build_circuit("NEQR")
                 pm = generate_preset_pass_manager(backend=backend, optimization_level=1)
                 isa_circuit = pm.run(qc)
                 sampler = Sampler(backend)
                 job = sampler.run([isa_circuit])
-                st.success(f"Job ID: {job.job_id()}")
-                st.bar_chart(job.result()[0].data.meas.get_counts())
+                
+                st.success(f"Job Submitted! ID: `{job.job_id()}`")
+                st.info("Waiting for results from IBM...")
+                
+                result = job.result()
+                counts = result[0].data.meas.get_counts()
+                
+                # SHOW THE GRAPH
+                st.success("Execution Complete!")
+                st.bar_chart(counts)
                 
         except Exception as e:
-            # Fallback: if 'ibm_quantum' fails, try 'ibm_quantum_platform'
-            if "channel" in str(e):
-                 try:
-                    service = QiskitRuntimeService(channel="ibm_quantum_platform", token=api_token)
-                    backend = service.least_busy(operational=True, simulator=False)
-                    st.write(f"🌍 Connected to IBM Quantum: **{backend.name}**")
-                    # (Code would continue here, but simplified for the fix block)
-                    st.warning("Connected using updated platform channel. Please re-click Run.")
-                 except Exception as e2:
-                    st.error(f"Connection Error: {e2}")
-            else:
-                st.error(f"Connection Error: {e}")
+            st.error(f"Critical Connection Error: {e}")
+            
     else:
         st.write("💻 Running Locally...")
         backend = Aer.get_backend('qasm_simulator')
