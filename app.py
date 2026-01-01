@@ -11,6 +11,8 @@ from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 
 # --- 1. PAGE CONFIGURATION ---
 st.set_page_config(page_title="EBA-HQR Research Platform", layout="wide")
+
+# Force Black Text for High Visibility
 st.markdown("""
     <style>
     .stApp, .stMarkdown, h1, h2, h3, p, label, li, span { color: #000000 !important; }
@@ -28,24 +30,24 @@ st.markdown("""
 st.title("⚛️ Entropy-Based Adaptive Hybrid Quantum Representation (EBA-HQR)")
 st.write("**Research Prototype:** Validating Hybrid Compression on Real Data.")
 
-# --- 2. SIDEBAR & SECURE API HANDLING ---
+# --- 2. SIDEBAR & SECURE CONNECTION ---
 with st.sidebar:
-    st.header("⚙️ Experiment Settings")
+    st.header("⚙️ Settings")
     
-    # SECURITY: Try to load key from Secrets. If not found, ask user.
-    if "IBM_QUANTUM_TOKEN" in st.secrets:
-        api_token = st.secrets["IBM_QUANTUM_TOKEN"]
-        st.success("✅ API Key loaded securely from Cloud Secrets.")
+    # SECURITY: Load API Key from Streamlit Secrets
+    if "QISKIT_TOKEN" in st.secrets:
+        api_token = st.secrets["QISKIT_TOKEN"]
+        st.success("✅ API Key Loaded securely from Cloud.")
     else:
-        api_token = st.text_input("Enter IBM API Token:", type="password")
+        api_token = st.text_input("Enter IBM API Token (Local Mode):", type="password")
     
     entropy_threshold = st.slider("Entropy Threshold (α)", 0.0, 2.0, 0.6, 0.1)
     
     st.divider()
     
     execution_mode = st.radio(
-        "Quantum Backend:",
-        ["💻 Local Simulator (Validation)", "☁️ IBM Real Hardware (Deployment)"],
+        "Backend Selection:",
+        ["💻 Local Simulator (Fast Validation)", "☁️ IBM Real Hardware (Research Deployment)"],
         index=0
     )
     use_cloud = True if "Real" in execution_mode else False
@@ -53,13 +55,12 @@ with st.sidebar:
 # --- 3. DATA LOADING ---
 @st.cache_data
 def load_local_mnist():
-    # Tries to load the uploaded file
     if os.path.exists('mnist_data.npz'):
         data = np.load('mnist_data.npz')
         return data['images']
     return None
 
-# --- 4. CORE ALGORITHM (EBA-HQR) ---
+# --- 4. ALGORITHM (EBA-HQR) ---
 def calculate_entropy(block):
     flat = block.flatten()
     values, counts = np.unique(flat, return_counts=True)
@@ -92,7 +93,7 @@ def build_circuit(method):
     qc.measure_all()
     return qc
 
-# --- 5. INTERFACE ---
+# --- 5. VISUAL INTERFACE ---
 col1, col2 = st.columns(2)
 
 with col1:
@@ -103,10 +104,10 @@ with col1:
     if source == "MNIST Dataset (Real)":
         dataset = load_local_mnist()
         if dataset is not None:
-            idx = st.slider("Image Index", 0, len(dataset)-1, 0)
+            idx = st.slider("Select Image Index", 0, len(dataset)-1, 0)
             raw_img = dataset[idx]
         else:
-            st.error("⚠️ 'mnist_data.npz' not found in repository.")
+            st.error("⚠️ 'mnist_data.npz' not found. Please upload it to GitHub.")
     else:
         uploaded = st.file_uploader("Upload Image", type=['png', 'jpg'])
         if uploaded:
@@ -126,7 +127,7 @@ with col2:
         plt.colorbar(im)
         st.pyplot(fig)
 
-# --- 6. EXECUTION ---
+# --- 6. EXECUTION LOGIC ---
 st.divider()
 if st.button("RUN EXPERIMENT"):
     if raw_img is None:
@@ -134,23 +135,28 @@ if st.button("RUN EXPERIMENT"):
     else:
         if use_cloud:
             if not api_token:
-                st.error("API Token missing! Add it to Streamlit Secrets.")
+                st.error("API Token missing! Add 'QISKIT_TOKEN' to Streamlit Secrets.")
                 st.stop()
             try:
+                # FIXED: Explicitly set channel to 'ibm_quantum'
                 service = QiskitRuntimeService(channel="ibm_quantum", token=api_token)
                 backend = service.least_busy(operational=True, simulator=False)
-                st.write(f"🌍 Connected to: **{backend.name}**")
-                with st.spinner("Running on Quantum Cloud..."):
-                    # Demo Circuit Run
+                st.write(f"🌍 Connected to IBM Cloud: **{backend.name}**")
+                
+                with st.spinner("Submitting to Quantum Queue..."):
                     qc = build_circuit("NEQR")
                     pm = generate_preset_pass_manager(backend=backend, optimization_level=1)
                     isa_circuit = pm.run(qc)
                     sampler = Sampler(backend)
                     job = sampler.run([isa_circuit])
-                    st.success(f"Job ID: {job.job_id()}")
-                    st.bar_chart(job.result()[0].data.meas.get_counts())
+                    st.success(f"Job Submitted! ID: {job.job_id()}")
+                    st.info("Waiting for results (this happens on IBM servers)...")
+                    result = job.result()
+                    st.bar_chart(result[0].data.meas.get_counts())
+                    
             except Exception as e:
-                st.error(f"Cloud Error: {e}")
+                st.error(f"Cloud Connection Error: {e}")
+                st.help("Ensure your API Token is correct in Streamlit Secrets.")
         else:
             st.write("💻 Running Locally...")
             backend = Aer.get_backend('qasm_simulator')
