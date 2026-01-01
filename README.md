@@ -6,6 +6,8 @@
 ![Streamlit](https://img.shields.io/badge/Streamlit-App-red)
 ![Status](https://img.shields.io/badge/Status-Research_Prototype-green)
 
+> **🚀 Try the Live App:** [Click Here to Run the Quantum Experiment](https://quantumimageprocessinggit-nbxwafutxba9ymtzbdfw3w.streamlit.app/)
+
 ## 📄 Abstract
 This repository hosts the implementation of **Entropy-Based Adaptive Hybrid Quantum Representation (EBA-HQR)**, a novel quantum image processing algorithm designed to optimize the trade-off between circuit depth and image fidelity.
 
