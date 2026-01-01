@@ -1,19 +1,13 @@
-Here is a professional, research-grade **README.md** file for your GitHub repository.
 
-This is designed to impress examiners and researchers. It highlights the **novelty** (EBA-HQR) immediately and explains the technical architecture clearly.
-
-**Copy the code block below and save it as `README.md` in your repository.**
-
----
 
 ```markdown
-# ⚛️ EBA-HQR: Entropy-Based Adaptive Hybrid Quantum Representation
+#  EBA-HQR: Entropy-Based Adaptive Hybrid Quantum Representation
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/)
 [![Qiskit](https://img.shields.io/badge/Qiskit-1.0-purple)](https://qiskit.org/)
 [![Status](https://img.shields.io/badge/Status-Research_Prototype-blue)](https://github.com/)
 
-## 📄 Abstract
+##  Abstract
 This project introduces a novel **Entropy-Based Adaptive Hybrid Quantum Representation (EBA-HQR)** algorithm for quantum image processing. 
 
 Traditional methods like **NEQR** (Novel Enhanced Quantum Representation) provide high accuracy but consume excessive qubits ($O(2^{2n})$), while **FRQI** (Flexible Representation of Quantum Images) saves qubits but suffers from lower precision. 
@@ -26,16 +20,16 @@ This approach demonstrates a significant reduction in circuit depth while mainta
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 * **Hybrid Algorithm:** Automatically switches between NEQR and FRQI based on local information density.
 * **Real-World Data:** Integrated with the **MNIST Dataset** and supports custom image uploads (e.g., Medical MRI/X-Ray).
-* **Dual Backend Support:** * 💻 **Local Simulator:** Runs instantly on Qiskit Aer for validation.
-    * ☁️ **IBM Quantum Cloud:** Deploys circuits to real quantum hardware (e.g., `ibm_brisbane`) via API.
+* **Dual Backend Support:** *  **Local Simulator:** Runs instantly on Qiskit Aer for validation.
+    *  **IBM Quantum Cloud:** Deploys circuits to real quantum hardware (e.g., `ibm_brisbane`) via API.
 * **Interactive Research Dashboard:** Built with Streamlit to visualize the "Entropy Decision Map" and adjust thresholds $\alpha$ in real-time.
 
 ---
 
-## 📊 Results & Visualization
+##  Results & Visualization
 
 | Input Data (Real MNIST) | Novel Entropy Decision Map |
 | :---: | :---: |
@@ -46,7 +40,7 @@ This approach demonstrates a significant reduction in circuit depth while mainta
 
 ---
 
-## 🛠️ Installation & Usage
+##  Installation & Usage
 
 ### 1. Clone the Repository
 ```bash
@@ -71,7 +65,7 @@ streamlit run app.py
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 * `app.py`: The main research interface containing the EBA-HQR algorithm logic and Streamlit UI.
 * `mnist_data.npz`: Pre-processed subset of the MNIST dataset for offline/fast loading.
@@ -79,7 +73,7 @@ streamlit run app.py
 
 ---
 
-## 🧠 Methodology (The "Why")
+##  Methodology (The "Why")
 
 ### The Algorithm Flow:
 
@@ -97,7 +91,7 @@ streamlit run app.py
 
 ---
 
-## 🔮 Future Scope
+##  Future Scope
 
 * **Medical Imaging:** Applying EBA-HQR to DICOM images for tumor detection with reduced qubit cost.
 * **QRAM Optimization:** Further optimizing the storage retrieval process.
@@ -105,7 +99,7 @@ streamlit run app.py
 
 ---
 
-## ✍️ Author
+##  Author
 
 **Tanisha Debnath** *Computer Science & Engineering (AI Specialization)* *Institute of Engineering and Management (IEM), Kolkata*
 
